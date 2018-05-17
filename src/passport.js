@@ -14,38 +14,30 @@
  */
 
 import passport from 'passport';
-import { Strategy as FacebookStrategy } from 'passport-facebook';
+import { Strategy as WechatStrategy } from 'passport-wechat';
 import { User, UserLogin, UserClaim, UserProfile } from './data/models';
 import config from './config';
 
-/**
- * Sign in with Facebook.
- */
 passport.use(
-  new FacebookStrategy(
+  new WechatStrategy(
     {
-      clientID: config.auth.facebook.id,
-      clientSecret: config.auth.facebook.secret,
-      callbackURL: '/login/facebook/return',
-      profileFields: [
-        'displayName',
-        'name',
-        'email',
-        'link',
-        'locale',
-        'timezone',
-      ],
+      appID: config.auth.wechat.appId,
+      appSecret: config.auth.wechat.appSecret,
+      callbackURL: 'http://shoutanwq.com/login/wechat/return',
+      client: 'wechat',
+      scope: 'snsapi_userinfo',
       passReqToCallback: true,
     },
-    (req, accessToken, refreshToken, profile, done) => {
+    (req, accessToken, refreshToken, profile, expiredIn, done) => {
       /* eslint-disable no-underscore-dangle */
-      const loginName = 'facebook';
-      const claimType = 'urn:facebook:access_token';
+      const loginName = 'wechat';
+      const claimType = 'urn:wechat:access_token';
+      const id = profile.unionid || profile.openid;
       const fooBar = async () => {
         if (req.user) {
           const userLogin = await UserLogin.findOne({
             attributes: ['name', 'key'],
-            where: { name: loginName, key: profile.id },
+            where: { name: loginName, key: profile.openid },
           });
           if (userLogin) {
             // There is already a Facebook account that belongs to you.
@@ -55,15 +47,13 @@ passport.use(
             const user = await User.create(
               {
                 id: req.user.id,
-                email: profile._json.email,
-                logins: [{ name: loginName, key: profile.id }],
-                claims: [{ type: claimType, value: profile.id }],
+                email: `${id}@wechat.account.shoutanwq.com.`,
+                logins: [{ name: loginName, key: profile.openid }],
+                claims: [{ type: claimType, value: accessToken }],
                 profile: {
-                  displayName: profile.displayName,
-                  gender: profile._json.gender,
-                  picture: `https://graph.facebook.com/${
-                    profile.id
-                  }/picture?type=large`,
+                  displayName: profile.nickname,
+                  gender: profile.sex,
+                  picture: profile.headimgurl,
                 },
               },
               {
@@ -82,7 +72,10 @@ passport.use(
         } else {
           const users = await User.findAll({
             attributes: ['id', 'email'],
-            where: { '$logins.name$': loginName, '$logins.key$': profile.id },
+            where: {
+              '$logins.name$': loginName,
+              '$logins.key$': profile.openid,
+            },
             include: [
               {
                 attributes: ['name', 'key'],
@@ -97,7 +90,7 @@ passport.use(
             done(null, user);
           } else {
             let user = await User.findOne({
-              where: { email: profile._json.email },
+              where: { email: `${id}@wechat.account.shoutanwq.com` },
             });
             if (user) {
               // There is already an account using this email address. Sign in to
@@ -106,16 +99,14 @@ passport.use(
             } else {
               user = await User.create(
                 {
-                  email: profile._json.email,
+                  email: `${id}@wechat.account.shoutanwq.com`,
                   emailConfirmed: true,
-                  logins: [{ name: loginName, key: profile.id }],
+                  logins: [{ name: loginName, key: profile.openid }],
                   claims: [{ type: claimType, value: accessToken }],
                   profile: {
-                    displayName: profile.displayName,
-                    gender: profile._json.gender,
-                    picture: `https://graph.facebook.com/${
-                      profile.id
-                    }/picture?type=large`,
+                    displayName: profile.nickname,
+                    gender: profile.sex,
+                    picture: profile.headimgurl,
                   },
                 },
                 {
