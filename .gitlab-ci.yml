@@ -28,7 +28,7 @@ k8s-deploy-Prod:
     - kubectl get cs
     - /bin/sh deploy.sh ${CI_BUILD_REF_NAME}_${CI_BUILD_REF} default tropicalhosting.com
   environment:
-  name: production
-  url: http://shoutanwq.com
+    name: production
+    url: http://shoutanwq.com
   only:
     - master
