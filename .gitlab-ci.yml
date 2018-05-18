@@ -14,6 +14,10 @@ build:
     - docker build --pull -t "$IMAGE_NAME:${CI_BUILD_REF_NAME}_${CI_BUILD_REF}" .
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker push "$IMAGE_NAME:${CI_BUILD_REF_NAME}_${CI_BUILD_REF}"
+  only:
+    - develop
+    - release
+    - master
 
 k8s-deploy-Prod:
   image: lwolf/kubectl_deployer:latest
@@ -26,7 +30,7 @@ k8s-deploy-Prod:
     - kubectl config set-context default-context --cluster=my-cluster --user=admin
     - kubectl config use-context default-context
     - kubectl get cs
-    - /bin/sh deploy.sh ${CI_BUILD_REF_NAME}_${CI_BUILD_REF} default tropicalhosting.com
+    - /bin/sh deployments/deploy.sh ${CI_BUILD_REF_NAME}_${CI_BUILD_REF} default
   environment:
     name: production
     url: http://shoutanwq.com
