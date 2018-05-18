@@ -29,7 +29,6 @@ k8s-deploy-Prod:
     - kubectl config set-credentials admin --token="$K8S_TOKEN"
     - kubectl config set-context default-context --cluster=my-cluster --user=admin
     - kubectl config use-context default-context
-    - kubectl get cs
     - /bin/sh deployments/deploy.sh ${CI_BUILD_REF_NAME}_${CI_BUILD_REF} default
   environment:
     name: production
