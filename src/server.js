@@ -9,6 +9,8 @@
 
 import path from 'path';
 import express from 'express';
+import session from 'express-session';
+import connectRedis from 'connect-redis';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import expressJwt, { UnauthorizedError as Jwt401Error } from 'express-jwt';
@@ -19,6 +21,7 @@ import nodeFetch from 'node-fetch';
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 import PrettyError from 'pretty-error';
+import { redis } from './redis';
 import App from './components/App';
 import Html from './components/Html';
 import { ErrorPageWithoutStyle } from './routes/error/ErrorPage';
@@ -83,25 +86,32 @@ app.use((err, req, res, next) => {
 });
 
 app.use(passport.initialize());
-
-app.get(
-  '/login/facebook',
-  passport.authenticate('facebook', {
-    scope: ['email', 'user_location'],
-    session: false,
+const RedisStore = connectRedis(session);
+app.use(
+  session({
+    store: new RedisStore({
+      client: redis,
+    }),
+    secret: config.sessionSecret,
+    resave: false,
+    saveUninitialized: true,
   }),
 );
+
+app.get('/login/wechat', passport.authenticate('wechat'));
 app.get(
-  '/login/facebook/return',
-  passport.authenticate('facebook', {
-    failureRedirect: '/login',
+  '/login/wechat/return',
+  passport.authenticate('wechat', {
+    failureRedirect: `${app.path}/login/wechat`,
     session: false,
   }),
   (req, res) => {
     const expiresIn = 60 * 60 * 24 * 180; // 180 days
     const token = jwt.sign(req.user, config.auth.jwt.secret, { expiresIn });
     res.cookie('id_token', token, { maxAge: 1000 * expiresIn, httpOnly: true });
-    res.redirect('/');
+    const { next } = req.session;
+    delete req.session.next;
+    res.redirect(next || '/');
   },
 );
 
