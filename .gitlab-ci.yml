@@ -7,8 +7,8 @@ build:
   stage: build
   cache:
     key: "builder"
-  paths:
-    - ./.build
+    paths:
+      - ./.build
   script:
     - docker version
     - docker build - pull -t "$IMAGE_NAME:${CI_BUILD_REF_NAME}_${CI_BUILD_REF}" .
