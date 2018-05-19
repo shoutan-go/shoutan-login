@@ -38,6 +38,8 @@ module.exports = {
   // Redis
   redis: process.env.REDIS || 'redis://localhost:6379',
 
+  sessionSecret: process.env.SESSION_SECRET || "It's a secret",
+
   // Authentication
   auth: {
     jwt: { secret: process.env.JWT_SECRET || 'React Starter Kit' },
