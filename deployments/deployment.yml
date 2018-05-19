@@ -2,7 +2,6 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: shoutan-login-deployment
-  namespace: ${NAMESPACE}
 spec:
   strategy:
     type: RollingUpdate
