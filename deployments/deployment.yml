@@ -15,7 +15,7 @@ spec:
     spec:
       terminationGracePeriodSeconds: 60
       containers:
-      - image: registry-vpc.cn-qingdao.aliyuncs.com/shoutan/shoutan-login:${BUILD_NUMBER}
+      - image: registry-vpc.cn-qingdao.aliyuncs.com/shoutan/shoutan-login:latest
         name: shoutan-login
         imagePullPolicy: Always
         ports:
