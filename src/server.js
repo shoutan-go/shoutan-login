@@ -103,7 +103,7 @@ app.get('/login/wechat', passport.authenticate('wechat'));
 app.get(
   '/login/wechat/return',
   passport.authenticate('wechat', {
-    failureRedirect: `${app.path()}/login/wechat`,
+    failureRedirect: `/login/wechat`,
     session: false,
   }),
   (req, res) => {
