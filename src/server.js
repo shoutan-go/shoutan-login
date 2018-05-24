@@ -108,7 +108,11 @@ app.get(
   (req, res) => {
     const expiresIn = 60 * 60 * 24 * 180; // 180 days
     const token = jwt.sign(req.user, config.auth.jwt.secret, { expiresIn });
-    res.cookie('id_token', token, { maxAge: 1000 * expiresIn, httpOnly: true });
+    res.cookie('id_token', token, {
+      maxAge: 1000 * expiresIn,
+      httpOnly: true,
+      domain: '.shoutanwq.com',
+    });
     const { next } = req.session;
     delete req.session.next;
     console.info('redirect to next:', next);
