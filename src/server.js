@@ -120,12 +120,20 @@ app.get('/login/wechat', passport.authenticate('wechat'));
 //   },
 // );
 
-app.get('/login/wechat/return', function(req, res, next) {
-  passport.authenticate('wechat', function(err, user, info) {
-    if (err) { return next(err); }
-    if (!user) { return res.redirect('/login/wechat'); }
-    req.logIn(user, function(err) {
-      if (err) { return next(err); }
+app.get('/login/wechat/return', (req, res, next) => {
+  passport.authenticate('wechat', (err, user, info) => {
+    if (err) {
+      console.log('authenticate error', err);
+      return next(err);
+    }
+    if (!user) {
+      return res.redirect('/login/wechat');
+    }
+    req.logIn(user, err => {
+      if (err) {
+        console.log('logIn error', err);
+        return next(err);
+      }
       const expiresIn = 60 * 60 * 24 * 180; // 180 days
       const token = jwt.sign(req.user, config.auth.jwt.secret, { expiresIn });
       res.cookie('id_token', token, {
