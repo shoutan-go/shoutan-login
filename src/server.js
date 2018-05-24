@@ -111,6 +111,7 @@ app.get(
     res.cookie('id_token', token, { maxAge: 1000 * expiresIn, httpOnly: true });
     const { next } = req.session;
     delete req.session.next;
+    console.info('redirect to next:', next);
     res.redirect(next || '/');
   },
 );
