@@ -93,6 +93,7 @@ app.use(
       client: redis,
     }),
     secret: config.sessionSecret,
+    domain: '.shoutanwq.com',
     resave: false,
     saveUninitialized: true,
   }),
@@ -111,7 +112,6 @@ app.get(
     res.cookie('id_token', token, {
       maxAge: 1000 * expiresIn,
       httpOnly: true,
-      domain: '.shoutanwq.com',
     });
     const { next } = req.session;
     delete req.session.next;
