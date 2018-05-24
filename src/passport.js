@@ -18,6 +18,14 @@ import { Strategy as WechatStrategy } from 'passport-wechat';
 import { User, UserLogin, UserClaim, UserProfile } from './data/models';
 import config from './config';
 
+passport.serializeUser((user, done) => {
+  done(null, user);
+});
+
+passport.deserializeUser((user, done) => {
+  done(null, user);
+});
+
 passport.use(
   new WechatStrategy(
     {
