@@ -100,25 +100,45 @@ app.use(
 );
 
 app.get('/login/wechat', passport.authenticate('wechat'));
-app.get(
-  '/login/wechat/return',
-  passport.authenticate('wechat', {
-    failureRedirect: `/login/wechat`,
-    session: false,
-  }),
-  (req, res) => {
-    const expiresIn = 60 * 60 * 24 * 180; // 180 days
-    const token = jwt.sign(req.user, config.auth.jwt.secret, { expiresIn });
-    res.cookie('id_token', token, {
-      maxAge: 1000 * expiresIn,
-      httpOnly: true,
+// app.get(
+//   '/login/wechat/return',
+//   passport.authenticate('wechat', {
+//     failureRedirect: `/login/wechat`,
+//     session: false,
+//   }),
+//   (req, res) => {
+//     const expiresIn = 60 * 60 * 24 * 180; // 180 days
+//     const token = jwt.sign(req.user, config.auth.jwt.secret, { expiresIn });
+//     res.cookie('id_token', token, {
+//       maxAge: 1000 * expiresIn,
+//       httpOnly: true,
+//     });
+//     const { next } = req.session;
+//     delete req.session.next;
+//     console.info('redirect to next:', next);
+//     res.redirect(next || '/');
+//   },
+// );
+
+app.get('/login/wechat/return', function(req, res, next) {
+  passport.authenticate('wechat', function(err, user, info) {
+    if (err) { return next(err); }
+    if (!user) { return res.redirect('/login/wechat'); }
+    req.logIn(user, function(err) {
+      if (err) { return next(err); }
+      const expiresIn = 60 * 60 * 24 * 180; // 180 days
+      const token = jwt.sign(req.user, config.auth.jwt.secret, { expiresIn });
+      res.cookie('id_token', token, {
+        maxAge: 1000 * expiresIn,
+        httpOnly: true,
+      });
+      const { next } = req.session;
+      delete req.session.next;
+      console.info('redirect to next:', next);
+      return res.redirect(next || '/');
     });
-    const { next } = req.session;
-    delete req.session.next;
-    console.info('redirect to next:', next);
-    res.redirect(next || '/');
-  },
-);
+  })(req, res, next);
+});
 
 //
 // Register API middleware
