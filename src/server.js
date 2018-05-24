@@ -102,53 +102,25 @@ app.use(
 );
 
 app.get('/login/wechat', passport.authenticate('wechat'));
-// app.get(
-//   '/login/wechat/return',
-//   passport.authenticate('wechat', {
-//     failureRedirect: `/login/wechat`,
-//     session: false,
-//   }),
-//   (req, res) => {
-//     const expiresIn = 60 * 60 * 24 * 180; // 180 days
-//     const token = jwt.sign(req.user, config.auth.jwt.secret, { expiresIn });
-//     res.cookie('id_token', token, {
-//       maxAge: 1000 * expiresIn,
-//       httpOnly: true,
-//     });
-//     const { next } = req.session;
-//     delete req.session.next;
-//     console.info('redirect to next:', next);
-//     res.redirect(next || '/');
-//   },
-// );
-
-app.get('/login/wechat/return', (req, res, next) => {
-  passport.authenticate('wechat', (err, user, info) => {
-    if (err) {
-      console.log('authenticate error', err);
-      return next(err);
-    }
-    if (!user) {
-      return res.redirect('/login/wechat');
-    }
-    req.logIn(user, err => {
-      if (err) {
-        console.log('logIn error', err);
-        return next(err);
-      }
-      const expiresIn = 60 * 60 * 24 * 180; // 180 days
-      const token = jwt.sign(req.user, config.auth.jwt.secret, { expiresIn });
-      res.cookie('id_token', token, {
-        maxAge: 1000 * expiresIn,
-        httpOnly: true,
-      });
-      const { next } = req.session;
-      delete req.session.next;
-      console.info('redirect to next:', next);
-      return res.redirect(next || '/');
+app.get(
+  '/login/wechat/return',
+  passport.authenticate('wechat', {
+    failureRedirect: `/login/wechat`,
+    session: false,
+  }),
+  (req, res) => {
+    const expiresIn = 60 * 60 * 24 * 180; // 180 days
+    const token = jwt.sign(req.user, config.auth.jwt.secret, { expiresIn });
+    res.cookie('id_token', token, {
+      maxAge: 1000 * expiresIn,
+      domain: '.shoutanwq.com',
+      httpOnly: true,
     });
-  })(req, res, next);
-});
+    const { next } = req.session;
+    delete req.session.next;
+    res.redirect(next || '/');
+  },
+);
 
 //
 // Register API middleware
