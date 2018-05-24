@@ -87,6 +87,7 @@ passport.use(
           });
           if (users.length) {
             const user = users[0].get({ plain: true });
+            console.info('passport user:', user);
             done(null, user);
           } else {
             let user = await User.findOne({
