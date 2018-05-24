@@ -93,7 +93,9 @@ app.use(
       client: redis,
     }),
     secret: config.sessionSecret,
-    domain: '.shoutanwq.com',
+    cookie: {
+      domain: '.shoutanwq.com',
+    },
     resave: false,
     saveUninitialized: true,
   }),
