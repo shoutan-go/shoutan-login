@@ -1,0 +1,41 @@
+apiVersion: apps/v1beta1 # for versions before 1.8.0 use apps/v1beta1
+kind: Deployment
+metadata:
+  name: shoutan-login
+spec:
+  selector:
+    matchLabels:
+      app: shoutan-login
+      tier: frontend
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: shoutan-login
+        tier: frontend
+    spec:
+      containers:
+      - name: shoutan-login
+        image: registry-vpc.cn-beijing.aliyuncs.com/shoutan/shoutan-login:0.3
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: service-config
+      imagePullSecrets:
+      - name: aliyun-registry-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shoutan-login
+  labels:
+    app: shoutan-login
+    tier: frontend
+spec:
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    app: shoutan-login
+    tier: frontend
