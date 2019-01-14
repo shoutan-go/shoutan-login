@@ -80,7 +80,9 @@ app.use((err, req, res, next) => {
   if (err instanceof Jwt401Error) {
     console.error('[express-jwt-error]', req.cookies.id_token);
     // `clearCookie`, otherwise user can't use web-app until cookie expires
-    res.clearCookie('id_token');
+    res.clearCookie('id_token', {
+      domain: '.shoutanwq.com',
+    });
   }
   next(err);
 });
