@@ -111,6 +111,21 @@ passport.use(
           if (users.length) {
             const user = users[0].get({ plain: true });
             console.info('passport user:', user);
+            await UserClaim.update({
+              value: accessToken,
+            }, {
+              where: {
+                userId: user.id,
+              }
+            })
+            await UserProfile.update({
+              displayName: profile.nickname,
+              picture: profile.headimgurl,
+            }, {
+              where: {
+                userId: user.id,
+              }
+            })
             done(null, user);
           } else {
             let user = await User.findOne({
@@ -131,7 +146,7 @@ passport.use(
                 picture: profile.headimgurl,
               }, {
                 where: {
-                  userId: req.user.id,
+                  userId: user.id,
                 }
               })
               done(null);
