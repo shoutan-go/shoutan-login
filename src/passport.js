@@ -15,8 +15,8 @@
 
 import passport from 'passport';
 import { Strategy as WechatStrategy } from 'passport-wechat';
-import { User, UserLogin, UserClaim, UserProfile } from './data/models';
 import config from './config';
+import { User, UserClaim, UserLogin, UserProfile } from './data/models';
 
 passport.serializeUser((user, done) => {
   done(null, user);
@@ -50,6 +50,21 @@ passport.use(
           if (userLogin) {
             // There is already a Facebook account that belongs to you.
             // Sign in with that account or delete it, then link it with your current account.
+            await UserClaim.update({
+              value: accessToken,
+            }, {
+              where: {
+                userId: req.user.id,
+              }
+            })
+            await UserProfile.update({
+              displayName: profile.nickname,
+              picture: profile.headimgurl,
+            }, {
+              where: {
+                userId: req.user.id,
+              }
+            })
             done();
           } else {
             const user = await User.create(
@@ -104,6 +119,21 @@ passport.use(
             if (user) {
               // There is already an account using this email address. Sign in to
               // that account and link it with Facebook manually from Account Settings.
+              await UserClaim.update({
+                value: accessToken,
+              }, {
+                where: {
+                  userId: user.id,
+                }
+              })
+              await UserProfile.update({
+                displayName: profile.nickname,
+                picture: profile.headimgurl,
+              }, {
+                where: {
+                  userId: req.user.id,
+                }
+              })
               done(null);
             } else {
               user = await User.create(
